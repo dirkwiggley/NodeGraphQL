@@ -43,6 +43,16 @@ const AppointmentType: any = new GraphQLObjectType({
     })
 })
 
+const ContactType: any = new GraphQLObjectType({
+    name: 'ContactInfo',
+    description: 'This represents user contact information',
+    fields: () => ({
+        id: { type: GraphQLNonNull(GraphQLInt) },
+        type: { type: GraphQLNonNull(GraphQLString) },
+        data: { type: GraphQLNonNull(GraphQLString) },
+    })
+})
+
 const UserType = new GraphQLObjectType({
     name: 'User',
     description: 'This represents a user',
@@ -54,6 +64,7 @@ const UserType = new GraphQLObjectType({
             type: GraphQLNonNull(GraphQLString),
             resolve: (user) => (user.firstName + " " + user.lastName)
         },
+        contactInfo: { type: GraphQLNonNull(GraphQLList(ContactType)) },
         appointments: {
             type: new GraphQLList(AppointmentType),
             resolve: (user) => (appointments.filter(appointment => appointment.userId === user.id))
@@ -104,9 +115,10 @@ const RootMutationType = new GraphQLObjectType({
             args: {
                 firstName: { type: GraphQLNonNull(GraphQLString) },
                 lastName: { type: GraphQLNonNull(GraphQLString) },
+                contactInfo: { type: GraphQLString }
             },
             resolve: (parent, args) => {
-                const user = new User(users.length + 1, args.firstName, args.lastName )
+                const user = new User(users.length + 1, args.firstName, args.lastName, args.contactInfo )
                 users.push(user)
                 return user
             }
